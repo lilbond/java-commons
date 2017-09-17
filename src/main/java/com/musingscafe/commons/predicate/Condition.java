@@ -1,5 +1,7 @@
 package com.musingscafe.commons.predicate;
 
+import com.musingscafe.commons.api.Conditional;
+
 import java.util.Objects;
 
 /**
