@@ -1,6 +1,7 @@
 package com.musingscafe.commons;
 
 import com.musingscafe.commons.function.Exec;
+import com.musingscafe.commons.function.Func;
 import com.musingscafe.commons.function.Suppliers;
 import com.musingscafe.commons.api.Worker;
 import com.musingscafe.commons.predicate.And;
@@ -17,7 +18,7 @@ import java.util.function.Supplier;
  */
 public class Program {
     public static void main(String[] args) {
-        List<Conditional> conditionals = new ArrayList<>();
+        final List<Conditional> conditionals = new ArrayList<>();
         conditionals.add(() -> 1 == 1);
         conditionals.add(() -> 1 == 1);
         conditionals.add(() -> 1 == 2);
@@ -26,30 +27,38 @@ public class Program {
 
         conditionals.stream().filter(e -> e.test());
 
-        And and = new And(conditionals.toArray(new Conditional[conditionals.size()]));
-        //System.out.println(and.execute());
+        final And and = new And(conditionals.toArray(new Conditional[conditionals.size()]));
+        System.out.println(and.test());
 
-        Or or = new Or(conditionals.toArray(new Conditional[conditionals.size()]));
-        //System.out.println(or.execute());
+        final Or or = new Or(conditionals.toArray(new Conditional[conditionals.size()]));
+        System.out.println(or.test());
 
-        Program program = new Program();
-        Conditional conditional = Condition
+        final Program program = new Program();
+        final Conditional conditional = Condition
                 .test(() -> program.isTrue())
                 .and(() -> "hello".equals("Hello".toLowerCase()))
                 .or(() -> 2 != 3).build();
-
+        System.out.println(conditional.test());
 
         final Supplier<Boolean> predicate = () -> program.isFalse();
         final Worker mapProperties = () -> program.doSomething();
         final Worker setFailure = () -> program.doNothing();
-//        final Supplier<String> ifTrue = () -> "passed";
-//        final Supplier<String> ifFalse = () -> "failed";
+        Func.execute(predicate, mapProperties, setFailure);
 
-        //System.out.println(Suppliers.test(predicate, ifTrue, ifFalse));
+        final Supplier<String> ifTrue = () -> "passed";
+        final Supplier<String> ifFalse = () -> "failed";
+        System.out.println(Func.supply(predicate, ifTrue, ifFalse));
 
-        //Suppliers.execute(predicate, mapProperties, setFailure);
-        Exec.apply(predicate, mapProperties).orElse(()-> program.isTrue(), setFailure).execute();
-        System.out.println(Suppliers.apply(predicate, () -> 1).orElse(() -> program.isTrue(), () -> 2).get());
+
+        Exec.apply(predicate, mapProperties)
+                .orElse(()-> program.isTrue(), setFailure)
+                .execute();
+
+        final int value = Suppliers.apply(predicate, () -> 1)
+                .orElse(() -> program.isTrue(), () -> 2)
+                .get();
+
+        System.out.println(value);
     }
 
     private boolean isTrue() {
