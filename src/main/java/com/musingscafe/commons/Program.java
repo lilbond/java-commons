@@ -59,6 +59,8 @@ public class Program {
                 .get();
 
         System.out.println(value);
+
+        Exec.applyWithTry(program::isTrue, program::throwOnExec, program::handle).execute();
     }
 
     private boolean isTrue() {
@@ -74,5 +76,13 @@ public class Program {
     }
     private void doNothing() {
         System.out.println("doNothing");
+    }
+
+    private void throwOnExec() {
+        throw new RuntimeException("Intentionally throwing :) ");
+    }
+
+    private void handle(Throwable throwable) {
+        System.out.println(throwable.getMessage());
     }
 }
