@@ -55,7 +55,7 @@ public class Program {
         System.out.println(Func.supply(predicate, ifTrue, ifFalse));
 
 
-        // sample for -> if(true) { x(); return;} else { y();}
+        // sample for -> if {return}/else-if {return}/else  {return}
         Func.apply(predicate, mapProperties)
                 .orElse(() -> 1 == 2, () -> System.out.println("1st else"))
                 .orElse(() -> 1 == 2, () -> System.out.println("2nd else"))
