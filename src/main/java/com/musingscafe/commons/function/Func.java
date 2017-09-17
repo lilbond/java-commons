@@ -4,6 +4,7 @@ import com.musingscafe.commons.api.CheckedSupplier;
 import com.musingscafe.commons.api.Worker;
 import com.musingscafe.commons.object.Obj;
 
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -12,6 +13,18 @@ import java.util.function.Supplier;
  */
 public class Func {
     private Func() {}
+
+    public static <R> Exec<R> apply(Supplier<Boolean> predicate, Worker worker) {
+        return Exec.apply(predicate, worker);
+    }
+
+    public static <R> Exec<R> applyWithTry(Supplier<Boolean> predicate, Worker worker, Consumer<? super Throwable> recoverFunc) {
+        return Exec.applyWithTry(predicate, worker, recoverFunc);
+    }
+
+    public static <R> Suppliers<R> apply(Supplier<Boolean> predicate, Supplier<R> supplier) {
+        return Suppliers.apply(predicate, supplier);
+    }
 
     public static <R> R supply(Supplier<Boolean> predicate, Supplier<R> ifTrue, Supplier<R> ifFalse) {
         if(Obj.valueOf(predicate.get())) {

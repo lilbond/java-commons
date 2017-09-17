@@ -18,6 +18,9 @@ import java.util.function.Supplier;
  */
 public class Program {
     public static void main(String[] args) {
+        final Program program = new Program();
+
+        // Sample to create sequential list of credentials
         final List<Conditional> conditionals = new ArrayList<>();
         conditionals.add(() -> 1 == 1);
         conditionals.add(() -> 1 == 1);
@@ -25,42 +28,51 @@ public class Program {
         conditionals.add(() -> 1 == 1);
         conditionals.add(() -> 1 == 1);
 
-        conditionals.stream().filter(e -> e.test());
-
+        // And sample
         final And and = new And(conditionals.toArray(new Conditional[conditionals.size()]));
         System.out.println(and.test());
 
+        // Or condition sample
         final Or or = new Or(conditionals.toArray(new Conditional[conditionals.size()]));
         System.out.println(or.test());
 
-        final Program program = new Program();
+        // Composite conditional
         final Conditional conditional = Condition
-                .test(() -> program.isTrue())
+                .test(program::isTrue)
                 .and(() -> "hello".equals("Hello".toLowerCase()))
                 .or(() -> 2 != 3).build();
         System.out.println(conditional.test());
 
-        final Supplier<Boolean> predicate = () -> program.isFalse();
-        final Worker mapProperties = () -> program.doSomething();
-        final Worker setFailure = () -> program.doNothing();
+        // sample for -> if(true) then execute
+        final Supplier<Boolean> predicate = program::isFalse;
+        final Worker mapProperties = program::doSomething;
+        final Worker setFailure = program::doNothing;
         Func.execute(predicate, mapProperties, setFailure);
 
+        // sample for -> if(true) return x else return y
         final Supplier<String> ifTrue = () -> "passed";
         final Supplier<String> ifFalse = () -> "failed";
         System.out.println(Func.supply(predicate, ifTrue, ifFalse));
 
 
-        Exec.apply(predicate, mapProperties)
-                .orElse(()-> program.isTrue(), setFailure)
+        // sample for -> if(true) { x(); return;} else { y();}
+        Func.apply(predicate, mapProperties)
+                .orElse(() -> 1 == 2, () -> System.out.println("1st else"))
+                .orElse(() -> 1 == 2, () -> System.out.println("2nd else"))
+                .orElse(() -> 3 == 3, () -> System.out.println("3rd else"))
                 .execute();
 
-        final int value = Suppliers.apply(predicate, () -> 1)
-                .orElse(() -> program.isTrue(), () -> 2)
-                .get();
+        // sample for -> if/else-if/else
+        final int value = Func.apply(predicate, () -> 1)
+                .orElse(() -> 1 == 2, () -> 2)
+                .orElse(() -> 2 == 3, () -> 3)
+                .orElse(() -> 3 == 3, () -> 4)
+                .getOrElse(5);
 
         System.out.println(value);
 
-        Exec.applyWithTry(program::isTrue, program::throwOnExec, program::handle).execute();
+        // sample for executing with try
+        Func.applyWithTry(program::isTrue, program::throwOnExec, program::handle).execute();
     }
 
     private boolean isTrue() {
